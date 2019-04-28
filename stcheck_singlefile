@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Stealth Checker ver 1.0"
+echo " Stealth Check on Tamarin file"
+echo " Developer : Anonymous"
+echo " Email : "
+echo "Executing parser....."
+
+if test "$#" -ne 1; then
+	echo "Illegal number of parameters: Only tamarin filename required"
+	echo "usage: $(basename $0) <file_name> "
+	echo "Exiting parser.... "
+	echo "Try again...."
+else
+	rm ./stcheck*.spthy > /dev/null
+
+	python3 stealthcheck.py $1
+ 	echo "Starting stealth check...."
+	tamarin-prover --prove stcheck*.spthy
+fi
+

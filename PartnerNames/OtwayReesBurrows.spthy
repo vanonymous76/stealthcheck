@@ -1,0 +1,122 @@
+theory OtwayReesBurrows
+begin
+
+/*
+ * 	Protocol	:	Otway-Ress Protocol modified by Burrows et al
+	Modeled by	:	
+				January 2019		
+ */
+
+/* 
+
+ Protocol:
+ 
+	1.	 A -> B : M,A,B,{Na,M,A,B}Kas
+	2.	 B -> S : M,A,B,{Na,M,A,B}Kas,Nb,{M,A,B}Kbs
+	3.	 S -> B : M,{Na,Kab}Kas,{Nb,Kab}Kbs
+	4. 	 B -> A : M,{Na,Kab}Kas
+
+	M is session ID
+	Na and Nb are nonces chosen by  A and B respectively.
+*/
+
+functions: enc/2, dec/2
+equations: dec(enc(M,k), k) = M
+
+
+rule setup:
+  [ Fr(~k) ]
+--[ KeyGen($A) ]->
+  [ !SharedKeyWithServer($A, ~k) ]
+
+rule reveal:
+  [ !SharedKeyWithServer(X, k) ]
+--[ Reveal(X) ]->
+  [ Out(k) ]
+
+
+rule A1:
+let m1= enc(<~na,~RID,$A,$B>,kas)
+in
+  [Fr(~RID), Fr(~na), !SharedKeyWithServer($A,kas) ]
+--[ LogA1($A,$B) ]->
+  [ Initiator1($A,$B,~RID,~na), Out(<~RID,$A,$B,m1>) ]
+
+
+rule B2:
+let m2 = enc(<na,RID,A,$B>,kas)
+	m3 = enc(<RID,A,$B>,kbs)
+in
+  [ In(<RID,A,$B,m2>), Fr(~nb),!SharedKeyWithServer($B,kbs) ]
+--[ LogB2(A,$B)]->
+  [ Responder2(A,$B,RID,na,~nb), Out(<RID,A,$B,m2,~nb,m3>) ]
+
+rule S3:
+let m4 = enc(<na,RID,$A,$B>,kas)
+	m5 = enc(<RID,$A,$B>,kbs)
+	m6 = enc(<na,~kab>,kas)
+	m7 = enc(<nb,~kab>,kbs)
+	
+in
+  [ In(<RID,$A,$B,m4,nb,m5>), Fr(~kab),!SharedKeyWithServer($A,kas), !SharedKeyWithServer($B,kbs)  ]
+--[  KeySharedInit($A,$B,~kab,RID,na,nb)
+	, LogS3($A,$B)
+]->
+  [ Out(<RID,m6,m7>)]
+
+
+rule B4:
+let m8 = enc(<na,kab>,kas)
+	m9 = enc(<nb,kab>,kbs)
+in
+  [  Responder2(A,$B,RID,na,nb), In(<RID,m8,m9>),!SharedKeyWithServer($B,kbs) ]
+--[ KeySharedResp($B,A,kab,RID,na,nb)
+	, Secret(A,$B,kab)
+	,LogB4(A,$B)]->
+  [ Out(<RID,m8>)
+  	
+   ]
+
+
+rule A5:
+  [Initiator1($A,B,RID,na),!SharedKeyWithServer($A,kas), In(<RID,enc(<na,kab>,kas)>)]
+--[ LogA5($A,B), Secret(B,$A,kab) ]->
+  [  ]
+
+
+
+lemma executable:
+  exists-trace "Ex A B k #i #j. Secret(A,B,k)@i & Secret(B,A,k)@j"
+
+restriction singlesharedkeyperuser:
+  "All A #i #j. KeyGen(A) @ i & KeyGen(A) @ j ==> #i = #j"
+
+
+lemma   AuthenticatewithSamekey:
+ " /* Whenever initiator initiates a key share , then*/
+    All A B key #i.
+        Secret(A,B,key) @ i
+      ==>
+        /* there is somebody running a session  */
+          (Ex #j. Secret(B,A,key) @ j & j < i
+          )
+   "
+
+
+// Nonce secrecy from the perspective of both the initiator and the responder.
+lemma key_secrecy:
+  " /* It cannot be that */
+    not(
+        Ex A B s #i.
+          /* somebody claims to have setup a shared secret, */
+          Secret(A, B, s) @ i
+          /* but the adversary knows it */
+        & (Ex #j. K(s) @ j)
+          /* without having performed a long-term key reveal. */
+        & not (Ex #r. Reveal(A) @ r)
+        & not (Ex #r. Reveal(B) @ r)
+       )"
+
+
+
+end
