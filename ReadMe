@@ -1,35 +1,38 @@
+StealthCheck user manual to check for stealthiness of an attack
+StealthCheck tests the steathiness of attacks based on logs of all the participants
+as well as individual log e.g. while testing attack on Needham- Shroedher Public
+Key protocol with two participants, the tool will generate three output Tamarin
+files, one each using logs of I and R and third using combined logs of I and R.
 
-Steps to check for stealthiness of an attack
 
-Test stealthiness based on only one log (added by us):
-This option  will test the steathiness based on logs of all the participants as well as individual log
-e.g. Testing   tamarin source for NSPK protocol  will generate three output tamarin files, one each for I and R and third for combined log of I and R
+Rules for TAMARINfi le to be processed : 
+Tamarin model of protocol being verified for stealthiness must adhere to the following naming conventions
+for the rules/facts/action labels :
 
-Run stcheck_singlefile with a tamarin source file name adhering to the following naming conventions for the rules/facts/action labels :
-Run stcheck_directory with a directory name containinig multiple tamarin source file name adhering to the following naming conventions for the rules/facts/action labels :
+       **Prefix logs to the action labels of all the rules with pattern : LogRuleName(Pars(RuleName)),.....with parameters to be logged as required.
+       **Rulename is usually a string of the form ID (a letter) followed by SEQ (a number), where ID is for identifying participant ID uniformly used in model such as I, R, A, B etc. For all the non-participant rules such as secrecy claims etc. 'X' can be used in place of ID. Seq denotes order of rule in the rule list.
+       **All protocol rules must be numbered 1,2,3,..,n and placed in a sequence in Tamarin file. This is to help the tool differentiate between protocol rules and auxiliary rules
+       **All the logs must have distinct names.
+       **Fact and action label names must also be distinct.
+       **Comments should be avoided within the rules. If required, must be made either before the start of the rule or after the rule ends.
+       **'sid' must not be used by any rule in the Tamarin source. If present, rename 'sid' to avoid confusion.
+       **None of the security lemmas should use any of the logs added above.
 
-	# Rules for TAMARIN file to be processed :
-	#     Prefix logs to the action labels of all the rules with pattern :  LogRuleName(Pars(RuleName)),.....with parameters to be logged as required
-	#     Rulename is usually a <ID>+<Seq> where IS is a character identifying participant ID uniformly used in model such as I, R, A, B etc. for all the non-participant rules such as 
-	#     secrecy claims etc. 'X' should be used in place of <ID> abd <Seq> is its order in the rule list.
-	#     All protocol rules could be numbered 1,2,3,..,n and must be placed in sequence in the file
-	#     The logs must have distinct names.
-	#     Fact and action label names must also be distinct.
-	#     Comments should be avoided within the rules. If required, must be made either before the start of the rule or after the rule ends.
-	#     'sid' must not be used by any rule in the tamarin source.	
+StealthCheck features :
+The python based StealthCheck utility stealthcheck.py modifies the TAMARIN source by :
+      ** Adding session IDs
+      ** Adding Stealth Logs in rules, if not present, with no parameters.
+      ** Updating stealth logs with Session IDs
+      ** Adding stealthiness restrictions
+and automatically verifies the stealthiness of an attack by verifying / falsifying the security lemmas present in the model.
 
-The stealthcheck.py modifies the TAMARIN source by :
-		**Adding session IDs
-		**Adding Stealth Logs in rules, if not present
-		**Updating stealth logs with Session IDs
-		**Adding stealthiness restrictions
-e.g. :
-To check one protocol
-$ ./stcheck_singlefile NamesMessages/densac_sym_cbc.spthy
 
-OR
-To check all  protocols in a single directory
-$ ./stcheck_directory NamesMessages
-
+Usage : 
+Execute Tamarin to check presence of any attack on the protocol. Execute ./stcheck single file with this Tamarin source file name or ./stcheck directory
+with a directory name containing multiple such Tamarin source le names.
+e.g., to check one protocol, execute
+     $ ./stcheck singlefile NamesMessages/densac sym cbc.spthy
+and, to check all protocols in a single directory, execute
+     $ ./stcheck directory NamesMessages
 
 
