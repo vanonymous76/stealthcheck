@@ -5,7 +5,7 @@ Key protocol with two participants, the tool will generate three output Tamarin
 files, one each using logs of I and R and third using combined logs of I and R.
 
 
-Rules for TAMARINfi le to be processed : 
+Rules for TAMARIN file to be processed : 
 Tamarin model of protocol being verified for stealthiness must adhere to the following naming conventions
 for the rules/facts/action labels :
 
