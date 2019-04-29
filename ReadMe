@@ -9,14 +9,14 @@ Rules for TAMARIN file to be processed :
 Tamarin model of protocol being verified for stealthiness must adhere to the following naming conventions
 for the rules/facts/action labels :
 
-       **Prefix logs to the action labels of all the rules with pattern : LogRuleName(Pars(RuleName)),.....with parameters to be logged as required.
-       **Rulename is usually a string of the form ID (a letter) followed by SEQ (a number), where ID is for identifying participant ID uniformly used in model such as I, R, A, B etc. For all the non-participant rules such as secrecy claims etc. 'X' can be used in place of ID. Seq denotes order of rule in the rule list.
-       **All protocol rules must be numbered 1,2,3,..,n and placed in a sequence in Tamarin file. This is to help the tool differentiate between protocol rules and auxiliary rules
-       **All the logs must have distinct names.
-       **Fact and action label names must also be distinct.
-       **Comments should be avoided within the rules. If required, must be made either before the start of the rule or after the rule ends.
+       **Prefix logs to the action labels of all the rules of the form : LogRuleName(Pars(RuleName)),.....with parameters to be logged            as required derived from those being used in the rule.
+       **Rulename is usually a string of the form ID (a letter) followed by SEQ (a number), where ID is for identifying participant ID             uniformly used in model such as I, R, A, B etc. For all the non-participant rules such as secrecy claims etc. 'X' can be used           in place of ID. Seq denotes order of rule in the rule list.
+       ** All protocol rules must be numbered 1,2,3,..,n and placed in a sequence in Tamarin file. This is to help the tool                       differentiate between protocol rules and auxiliary rules
+       ** All the logs must have distinct names.
+       ** Fact and action label names must also be distinct.
+       **Comments should be avoided within the rules. If required, must be made either before the start of the rule or after the rule             ends.
        **'sid' must not be used by any rule in the Tamarin source. If present, rename 'sid' to avoid confusion.
-       **None of the security lemmas should use any of the logs added above.
+       ** None of the security lemmas should use any of the logs added above.
 
 StealthCheck features :
 The python based StealthCheck utility stealthcheck.py modifies the TAMARIN source by :
